@@ -1,5 +1,6 @@
 /* eslint-disable no-await-in-loop */
 import {delay} from './delay'
+import AbortController from 'abort-controller'
 
 type PromiseOrValue<T> = Promise<T> | T
 
@@ -27,14 +28,16 @@ function createAbortPromise<TResult>({
 	getReason: () => any,
 }) {
 	const {promise, reject} = createCustomPromise<TResult>()
-	const onAbort = () => {
-		reject(getReason())
-	}
-	abortSignal.addEventListener('abort', onAbort)
-	if (abortPromiseSignal) {
-		abortPromiseSignal.addEventListener('abort', () => {
-			abortSignal.removeEventListener('abort', onAbort)
-		})
+	if (abortSignal) {
+		const onAbort = () => {
+			reject(getReason())
+		}
+		abortSignal.addEventListener('abort', onAbort)
+		if (abortPromiseSignal) {
+			abortPromiseSignal.addEventListener('abort', () => {
+				abortSignal.removeEventListener('abort', onAbort)
+			})
+		}
 	}
 	return promise
 }
@@ -50,14 +53,16 @@ function createTimeoutPromise<TResult>({
 	getReason: (timeout: number) => any,
 }) {
 	const {promise, reject} = createCustomPromise<TResult>()
-	const onTimeout = () => {
-		reject(getReason(timeout))
-	}
-	const timer = setTimeout(onTimeout, timeout)
-	if (abortPromiseSignal) {
-		abortPromiseSignal.addEventListener('abort', () => {
-			clearTimeout(timer)
-		})
+	if (timeout) {
+		const onTimeout = () => {
+			reject(getReason(timeout))
+		}
+		const timer = setTimeout(onTimeout, timeout)
+		if (abortPromiseSignal) {
+			abortPromiseSignal.addEventListener('abort', () => {
+				clearTimeout(timer)
+			})
+		}
 	}
 	return promise
 }
@@ -77,7 +82,7 @@ export async function withTimeout<TResult>({
 	const internalAbortController = new AbortController()
 
 	try {
-		const abortPromise = abortSignal && createAbortPromise<TResult>({
+		const abortPromise = createAbortPromise<TResult>({
 			abortSignal,
 			abortPromiseSignal: internalAbortController.signal,
 			getReason() {
@@ -85,7 +90,7 @@ export async function withTimeout<TResult>({
 			},
 		})
 
-		const timeoutPromise = timeout && createTimeoutPromise<TResult>({
+		const timeoutPromise = createTimeoutPromise<TResult>({
 			timeout,
 			abortPromiseSignal: internalAbortController.signal,
 			getReason(_timeout) {
@@ -108,8 +113,8 @@ export function waitRepeat<TResult>({
 	delay: _delay,
 	timeout,
 	abortSignal,
-	func,
 	predicate,
+	func,
 }: {
 	/** For error messages */
 	description?: string,
@@ -117,8 +122,8 @@ export function waitRepeat<TResult>({
 	delay?: number,
 	timeout?: number,
 	abortSignal?: AbortSignal,
-	func: () => PromiseOrValue<TResult>,
 	predicate: (result: TResult) => PromiseOrValue<boolean>,
+	func: (abortSignal: AbortSignal) => PromiseOrValue<TResult>,
 }): Promise<TResult> {
 	return withTimeout({
 		description,
@@ -129,13 +134,11 @@ export function waitRepeat<TResult>({
 				if (_abortSignal.aborted) {
 					return null
 				}
-				const result = await func()
+				const result = await func(_abortSignal)
 				if (await predicate(result)) {
 					return result
 				}
-				if (_delay) {
-					await delay(_delay)
-				}
+				await delay(_delay || 0)
 			}
 		},
 	})
