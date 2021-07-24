@@ -91,4 +91,89 @@ describe('wait-process', function () {
 				assert.ok(/\bTestDescription\b/.test(err.message), err.message)
 			})
 	})
+
+	it('waitProcessTree existing', async function () {
+ 		const command = `setTimeout(function() { console.log('Completed') }, 30000)`
+
+		let proc
+		let error
+		function startProc() {
+			proc = spawn('node', ['-e', command])
+			proc.on('error', err => {
+				error = err
+			})
+		}
+
+		startProc()
+
+		await delay(1000)
+
+		const result = await waitProcessTree({
+			description: 'TestDescription',
+			timeout: 1000,
+			checkInterval: 1000,
+			predicate(processTree) {
+				return Object.values(processTree).some(o => o.command.indexOf(command) >= 0)
+			},
+		})
+
+		assert.ok(Object.values(result).some(o => o.command.indexOf(command) >= 0))
+
+		if (proc) {
+			process.kill(proc.pid, 'SIGKILL')
+			await delay(1000)
+		}
+	})
+
+	it('waitProcessTree with delay', async function () {
+ 		const command = `setTimeout(function() { console.log('Completed') }, 30000)`
+
+		let proc
+		let error
+		function startProc() {
+			proc = spawn('node', ['-e', command])
+			proc.on('error', err => {
+				error = err
+			})
+		}
+
+		const result = await waitProcessTree({
+			description: 'TestDescription',
+			timeout: 2000,
+			checkInterval: 200,
+			predicate(processTree) {
+				if (Object.values(processTree).some(o => o.command.indexOf(command) >= 0)) {
+					return true
+				}
+				if (!proc) {
+					startProc()
+				}
+				return false
+			},
+		})
+
+		assert.ok(Object.values(result).some(o => o.command.indexOf(command) >= 0))
+
+		if (proc) {
+			process.kill(proc.pid, 'SIGKILL')
+			await delay(1000)
+		}
+	})
+
+	it('waitProcessTree timeout', async function () {
+		await waitProcessTree({
+			description: 'TestDescription',
+			timeout: 2000,
+			checkInterval: 200,
+			predicate(processTree) {
+				return false
+			},
+		})
+			.then(() => {
+				assert.fail('Should be error')
+			})
+			.catch(err => {
+				assert.ok(/\bTestDescription\b/.test(err.message), err.message)
+			})
+	})
 })
