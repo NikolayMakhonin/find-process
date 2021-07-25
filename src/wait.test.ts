@@ -180,15 +180,15 @@ describe('wait', function () {
 		const timeStart = Date.now()
 		await waitRepeat({
 			description: 'TestDescription',
-			timeout: 150,
-			delay: 100,
+			timeout: 1500,
+			delay: 1000,
 			predicate(result) {
 				return result === checkResult
 			},
 			async func(abortSignal) {
 				assert.ok(abortSignal)
 				await delay(1)
-				if (Date.now() - timeStart > 120) {
+				if (Date.now() - timeStart > 1200) {
 					return checkResult
 				}
 				return 'Incorrect value'
