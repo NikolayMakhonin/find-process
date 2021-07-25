@@ -37,7 +37,10 @@ describe('wait-process', function () {
 			},
 		})
 
-		assert.ok(result.some(o => o.command.indexOf(command) >= 0))
+		const findProcs = result.filter(o => o.command.indexOf(command) >= 0)
+		assert.ok(findProcs, 'findProcs=' + findProcs)
+		assert.strictEqual(findProcs.length, 1, 'findProc.length=' + findProcs.length)
+		assert.strictEqual(findProcs[0].pid, proc && proc.pid)
 
 		if (proc) {
 			process.kill(proc.pid, 'SIGINT')
@@ -87,7 +90,10 @@ describe('wait-process', function () {
 			},
 		})
 
-		assert.ok(result.some(o => o.command.indexOf(command) >= 0))
+		const findProcs = result.filter(o => o.command.indexOf(command) >= 0)
+		assert.ok(findProcs, 'findProcs=' + findProcs)
+		assert.strictEqual(findProcs.length, 1, 'findProc.length=' + findProcs.length)
+		assert.strictEqual(findProcs[0].pid, proc && proc.pid)
 
 		if (proc) {
 			process.kill(proc.pid, 'SIGINT')
@@ -152,7 +158,10 @@ describe('wait-process', function () {
 			},
 		})
 
-		assert.ok(Object.values(result).some(o => o.command.indexOf(command) >= 0))
+		const findProcs = Object.values(result).filter(o => o.command.indexOf(command) >= 0)
+		assert.ok(findProcs, 'findProcs=' + findProcs)
+		assert.strictEqual(findProcs.length, 1, 'findProc.length=' + findProcs.length)
+		assert.strictEqual(findProcs[0].pid, proc && proc.pid)
 
 		if (proc) {
 			process.kill(proc.pid, 'SIGINT')
@@ -202,7 +211,10 @@ describe('wait-process', function () {
 			},
 		})
 
-		assert.ok(Object.values(result).some(o => o.command.indexOf(command) >= 0))
+		const findProcs = Object.values(result).filter(o => o.command.indexOf(command) >= 0)
+		assert.ok(findProcs, 'findProcs=' + findProcs)
+		assert.strictEqual(findProcs.length, 1, 'findProc.length=' + findProcs.length)
+		assert.strictEqual(findProcs[0].pid, proc && proc.pid)
 
 		if (proc) {
 			process.kill(proc.pid, 'SIGINT')

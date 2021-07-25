@@ -40,9 +40,8 @@ describe('find-process', function () {
 			return proc.command.indexOf(command) >= 0
 		})
 		assert.strictEqual(result.length, 1)
-		result.forEach(proc => {
-			assert.ok(proc.command.indexOf(command) >= 0)
-		})
+		assert.ok(result[0].command.indexOf(command) >= 0)
+		assert.strictEqual(result[0].pid, proc.pid)
 
 		process.kill(proc.pid, 'SIGINT')
 		await delay(1000)
@@ -88,9 +87,8 @@ describe('find-process', function () {
 			return proc.command.indexOf(command) >= 0
 		})
 		assert.strictEqual(result.length, 1)
-		result.forEach(proc => {
-			assert.ok(proc.command.indexOf(command) >= 0)
-		})
+		assert.ok(result[0].command.indexOf(command) >= 0)
+		assert.strictEqual(result[0].pid, proc.pid)
 
 		process.kill(proc.pid, 'SIGINT')
 		await delay(1000)
