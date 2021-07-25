@@ -41,7 +41,7 @@ describe('find-process', function () {
 			assert.ok(proc.command.indexOf(command) >= 0)
 		})
 
-		process.kill(proc.pid, 'SIGKILL')
+		process.kill(proc.pid, 'SIGINT')
 		await delay(1000)
 
 		result = await findInProcessList((proc, processList) => {
@@ -86,7 +86,7 @@ describe('find-process', function () {
 			assert.ok(proc.command.indexOf(command) >= 0)
 		})
 
-		process.kill(proc.pid, 'SIGKILL')
+		process.kill(proc.pid, 'SIGINT')
 		await delay(1000)
 
 		result = await findInProcessTree((proc, processTree) => {
