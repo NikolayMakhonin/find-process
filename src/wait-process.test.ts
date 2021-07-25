@@ -36,7 +36,9 @@ describe('wait-process', function () {
 
 		assert.ok(result.some(o => o.command.indexOf(command) >= 0))
 
-		process.kill(proc.pid, 'SIGINT')
+		if (proc) {
+			process.kill(proc.pid, 'SIGINT')
+		}
 
 		result = await waitProcessList({
 			description: 'TestDescription',
@@ -47,7 +49,7 @@ describe('wait-process', function () {
 			},
 		})
 
-		assert.deepStrictEqual(result, [])
+		assert.ok(result.every(o => o.command.indexOf(command) < 0))
 	})
 
 	it('waitProcessList with delay', async function () {
@@ -94,7 +96,7 @@ describe('wait-process', function () {
 			},
 		})
 
-		assert.deepStrictEqual(result, [])
+		assert.ok(result.every(o => o.command.indexOf(command) < 0))
 	})
 
 	it('waitProcessList timeout', async function () {
@@ -102,7 +104,7 @@ describe('wait-process', function () {
 			description: 'TestDescription',
 			timeout: 2000,
 			checkInterval: 200,
-			predicate(processList) {
+			predicate() {
 				return false
 			},
 		})
@@ -156,7 +158,7 @@ describe('wait-process', function () {
 			},
 		})
 
-		assert.deepStrictEqual(result, [])
+		assert.ok(Object.values(result).every(o => o.command.indexOf(command) < 0))
 	})
 
 	it('waitProcessTree with delay', async function () {
@@ -203,7 +205,7 @@ describe('wait-process', function () {
 			},
 		})
 
-		assert.deepStrictEqual(result, [])
+		assert.ok(Object.values(result).every(o => o.command.indexOf(command) < 0))
 	})
 
 	it('waitProcessTree timeout', async function () {
@@ -211,7 +213,7 @@ describe('wait-process', function () {
 			description: 'TestDescription',
 			timeout: 2000,
 			checkInterval: 200,
-			predicate(processTree) {
+			predicate() {
 				return false
 			},
 		})
