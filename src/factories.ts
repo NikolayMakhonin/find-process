@@ -32,6 +32,8 @@ export function createProcessTreeFilterByPredicate(predicate: TFindInFilterPredi
 	}
 }
 
+export const processTreeFilterOpened = createProcessTreeFilterByPredicate(proc => !proc.closed)
+
 export function getProcessesChilds(
 	parents: TProcessTree,
 	processTree: TProcessTree,
@@ -84,19 +86,6 @@ export function createProcessTreeFilter({
 	includeParents,
 	includeChilds,
 }: TProcessTreeFilterArgs): TProcessTreeFilter {
-	// if (parentsPids && parentsPids.length > 0) {
-	// 	const processTree = await psTree()
-	// 	if (!parentsProcs) {
-	// 		parentsProcs = []
-	// 	}
-	// 	parentsPids.forEach(pid => {
-	// 		const proc = processTree[pid]
-	// 		if (proc) {
-	// 			parentsProcs.push(proc)
-	// 		}
-	// 	})
-	// }
-
 	const patentsPidsPredicate = parentsPids && createProcessesPidsPredicate(parentsPids)
 	const patentsProcsPredicate = parentsProcs && createProcessesPredicate(parentsProcs)
 
