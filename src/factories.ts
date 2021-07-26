@@ -7,7 +7,8 @@ export type TProcessTreeFilter = (
 ) => TProcessTree
 
 export type TProcessTreeFilterArgs = {
-	parents?: TProcessIdentity[],
+	parentsPids?: number[],
+	parentsProcs?: TProcessIdentity[],
 	parentsPredicate?: TFindInProcessTreePredicate,
 	includeParents?: boolean
 	includeChilds?: boolean
@@ -59,16 +60,32 @@ export function createProcessesPredicate(processes: TProcessIdentity[]): TFindIn
 	}
 }
 
+export function createProcessesPidsPredicate(pids: number[]): TFindInProcessTreePredicate {
+	const pidsMap: {
+		[pid: number]: true,
+	} = pids.reduce((a, o) => {
+		a[o] = true
+		return a
+	}, {})
+
+	return (proc: TProcessNode) => {
+		return pidsMap[proc.pid]
+	}
+}
+
 export function createProcessTreeFilter({
-	parents,
+	parentsPids,
+	parentsProcs,
 	parentsPredicate,
 	includeParents,
 	includeChilds,
 }: TProcessTreeFilterArgs): TProcessTreeFilter {
-	const patentsProcessesPredicate = parents && createProcessesPredicate(parents)
+	const patentsPidsPredicate = parentsPids && createProcessesPidsPredicate(parentsPids)
+	const patentsProcsPredicate = parentsProcs && createProcessesPredicate(parentsProcs)
 
 	const filterParents = createProcessTreeFilterByPredicate((proc, processTree) => {
-		return patentsProcessesPredicate && patentsProcessesPredicate(proc, processTree)
+		return patentsPidsPredicate && patentsPidsPredicate(proc, processTree)
+			|| patentsProcsPredicate && patentsProcsPredicate(proc, processTree)
 			|| parentsPredicate && parentsPredicate(proc, processTree)
 	})
 
