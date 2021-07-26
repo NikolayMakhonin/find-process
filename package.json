@@ -1,6 +1,6 @@
 {
 	"name": "@flemist/find-process",
-	"version": "0.0.5",
+	"version": "0.0.10",
 	"description": "Cross-platform find or wait processes by predicate func. With minimum code using ps (for Unix) and wmic (for Windows)",
 	"author": {
 		"name": "Nikolay Makhonin",
@@ -58,7 +58,7 @@
 		"typescript": "^4.3.5"
 	},
 	"dependencies": {
-		"@flemist/ps-cross-platform": "0.0.8",
+		"@flemist/ps-cross-platform": "0.0.11",
 		"abort-controller": "^3.0.0"
 	}
 }
