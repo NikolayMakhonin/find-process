@@ -1,6 +1,8 @@
 import {ps, psTree, TProcess, TProcessTree} from '@flemist/ps-cross-platform'
 import {waitRepeat} from './wait'
 
+export type TWaitProcessListPredicate = (processList: TProcess[]) => boolean
+
 export function waitProcessList({
 	description,
 	checkInterval,
@@ -11,7 +13,7 @@ export function waitProcessList({
 	description?: string,
 	checkInterval: number,
 	timeout?: number,
-	predicate: (processList: TProcess[]) => boolean,
+	predicate: TWaitProcessListPredicate,
 }): Promise<TProcess[]> {
 	return waitRepeat({
 		description: 'waitProcessList' + (description ? ', ' + description : ''),
@@ -24,6 +26,8 @@ export function waitProcessList({
 	})
 }
 
+export type TWaitProcessTreePredicate = (processTree: TProcessTree) => boolean
+
 export function waitProcessTree({
 	description,
 	checkInterval,
@@ -34,7 +38,7 @@ export function waitProcessTree({
 	description?: string,
 	checkInterval: number,
 	timeout?: number,
-	predicate: (processTree: TProcessTree) => boolean,
+	predicate: TWaitProcessTreePredicate,
 }): Promise<TProcessTree> {
 	return waitRepeat({
 		description: 'waitProcessTree' + (description ? ', ' + description : ''),
