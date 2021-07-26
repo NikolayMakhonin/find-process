@@ -38,18 +38,17 @@ export function getProcessesChilds(
 	parents: TProcessTree,
 	processTree: TProcessTree,
 ): TProcessTree {
-	const childProcesses: TProcessTree = {}
-
-	Object.values(parents).reduce((result, proc) => {
+	return Object.values(parents).reduce((result, proc) => {
 		proc.allChildIds.forEach(childPid => {
 			if (!parents[childPid]) {
-				childProcesses[childPid] = processTree[childPid]
+				const foundProc = processTree[childPid]
+				if (foundProc) {
+					result[childPid] = foundProc
+				}
 			}
 		})
 		return result
 	}, {} as TProcessTree)
-
-	return childProcesses
 }
 
 export function createProcessesPredicate(processes: TProcessIdentity[]): TFindInProcessTreePredicate {
