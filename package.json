@@ -1,6 +1,6 @@
 {
 	"name": "@flemist/find-process",
-	"version": "0.0.17",
+	"version": "0.0.18",
 	"description": "Cross-platform find or wait processes by predicate func. With minimum code using ps (for Unix) and wmic (for Windows)",
 	"author": {
 		"name": "Nikolay Makhonin",

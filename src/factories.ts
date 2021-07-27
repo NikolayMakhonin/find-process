@@ -93,7 +93,7 @@ export function createProcessTreeFilter({
 	const patentsProcsPredicate = parentsProcs && createProcessesPredicate(parentsProcs)
 
 	const filterParents = createProcessTreeFilterByPredicate((proc, processTree, prevProcessTree) => {
-		return prevProcessTree == null && patentsPidsPredicate && patentsPidsPredicate(proc, processTree)
+		return patentsPidsPredicate && patentsPidsPredicate(proc, processTree)
 			|| patentsProcsPredicate && patentsProcsPredicate(proc, processTree)
 			|| parentsPredicate && parentsPredicate(proc, processTree, prevProcessTree)
 	})
@@ -103,9 +103,6 @@ export function createProcessTreeFilter({
 		prevProcessTree: TProcessTree,
 	): TProcessTree {
 		const foundParents = filterParents(processTree, prevProcessTree)
-		if (prevProcessTree) {
-			Object.assign<TProcessTree, TProcessTree>(foundParents, prevProcessTree)
-		}
 
 		const filteredProcesses = {}
 		if (foundParents) {
