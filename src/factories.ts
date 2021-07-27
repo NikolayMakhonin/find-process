@@ -4,10 +4,14 @@ import {processEquals} from './processEquals'
 
 export type TProcessTreeFilter = (
 	processTree: TProcessTree,
-	first: boolean,
+	prevProcessTree: TProcessTree,
 ) => TProcessTree
 
-export type TFindInFilterPredicate = (proc: TProcessNode, processTree: TProcessTree, firstFilter: boolean) => boolean
+export type TFindInFilterPredicate = (
+	proc: TProcessNode,
+	processTree: TProcessTree,
+	prevProcessTree: TProcessTree,
+) => boolean
 
 export type TProcessTreeFilterArgs = {
 	parentsPids?: number[],
@@ -20,11 +24,11 @@ export type TProcessTreeFilterArgs = {
 export function createProcessTreeFilterByPredicate(predicate: TFindInFilterPredicate): TProcessTreeFilter {
 	return function _processTreeFilterByPredicate(
 		processTree: TProcessTree,
-		firstFilter: boolean,
+		prevProcessTree: TProcessTree,
 	): TProcessTree {
 		return Object.values(processTree).reduce((result, proc) => {
 			const foundProc = processTree[proc.pid]
-			if (processEquals(foundProc, proc) && predicate(foundProc, processTree, firstFilter)) {
+			if (processEquals(foundProc, proc) && predicate(foundProc, processTree, prevProcessTree)) {
 				result[proc.pid] = proc
 			}
 			return result
@@ -88,17 +92,20 @@ export function createProcessTreeFilter({
 	const patentsPidsPredicate = parentsPids && createProcessesPidsPredicate(parentsPids)
 	const patentsProcsPredicate = parentsProcs && createProcessesPredicate(parentsProcs)
 
-	const filterParents = createProcessTreeFilterByPredicate((proc, processTree, firstFilter) => {
-		return firstFilter && patentsPidsPredicate && patentsPidsPredicate(proc, processTree)
+	const filterParents = createProcessTreeFilterByPredicate((proc, processTree, prevProcessTree) => {
+		return prevProcessTree == null && patentsPidsPredicate && patentsPidsPredicate(proc, processTree)
 			|| patentsProcsPredicate && patentsProcsPredicate(proc, processTree)
-			|| parentsPredicate && parentsPredicate(proc, processTree, firstFilter)
+			|| parentsPredicate && parentsPredicate(proc, processTree, prevProcessTree)
 	})
 
 	return function _processTreeFilter(
 		processTree: TProcessTree,
-		firstFilter: boolean,
+		prevProcessTree: TProcessTree,
 	): TProcessTree {
-		const foundParents = filterParents(processTree, firstFilter)
+		const foundParents = filterParents(processTree, prevProcessTree)
+		if (prevProcessTree) {
+			Object.assign<TProcessTree, TProcessTree>(foundParents, prevProcessTree)
+		}
 
 		const filteredProcesses = {}
 		if (foundParents) {
